@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11745131-12"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-11745131-12');
+</script>
+
+	<!-- Sea level Rise Models maps app for GWRC, JRG 02-May-2019. Email olehie@gmail.com -->
+	<!-- Based off Climate Change models app. Mainly Leaflet/Bootstrap/JQuery -->
+	<!-- Updates : -->
+	<!--           -->
+	<title>GWRC Sea Level Rise Models</title>
+	<meta charset="utf-8">
+	<!-- Fix for IE used in intranet compatibility mode -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<!-- Viewport for BootStrap -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css">
+	<link rel="stylesheet" href="css/leaflet.groupedlayercontrol.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/esri-leaflet@2.0.7"></script>
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="src/leaflet.groupedlayercontrol.js"></script>
+	<script src='src/easy-button.js'></script>
+	<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.3/dist/esri-leaflet-geocoder.css">
+	<script src="https://unpkg.com/esri-leaflet-geocoder@2.2.3"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap-slider.min.css">
+	<!-- Custom styles for this template -->
+	<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">-->
+    <link href="css/style.css" rel="stylesheet">
+	<!-- See https://github.com/seiyria/bootstrap-slider/issues/818 -->
+	<script>$.fn.slider = null</script>
+	<!-- Latest compiled bootstrap JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="src/bootstrap-slider.min.js"></script>
+	<!-- Bootstrap Toggle, see  http://www.bootstraptoggle.com -->
+	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+	
+	<SCRIPT src="src/topfunction.js" type="text/javascript"></SCRIPT>
+	
+	<!-- Custom styles for this page -->
+    <link href="css/GWRC_SLR01.css" rel="stylesheet">
+	
+</head>
+<body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">
+
+	<nav class="navbar navbar-default">
+	  <div class="container-fluid">
+		<div class="navbar-header">
+		  <!-- https://stackoverflow.com/questions/19733447/bootstrap-navbar-with-left-center-or-right-aligned-items -->
+		  <ul class="nav navbar-nav navbar-left">
+			<li><a href="http://www.gw.govt.nz" target="_blank">Greater Wellington Regional Council</a></li> 
+		  </ul>
+		  <ul class="nav navbar-nav navbar-center">
+			<li><a href="https://mapping1.gw.govt.nz/gw/ClimateChange/" target="_blank">Climate Change Mapping</a></li>
+		  </ul>
+		</div>
+		<ul class="nav navbar-nav navbar-right">
+			<li><a href="#slr-details">Information</a></li> 
+			<li><a href="#how-to-use">Help</a></li>
+			<li><a href="#background-to-topic">Background</a></li>
+		</ul>
+		
+	  </div>
+	</nav>
+
+<div id="main-map" class="container-fluid" style="background-color:#fff;">  <!-- Was style="background-color:#248393;" -->
+  <br>
+  <div class="row">
+  
+	<!-- LH column for accordion with info text panels -->
+    <div class="col-sm-2" style="background-color:#fff;">
+		<h3 align="center">Sea Level Rise and Storm Surge Modelling</h3>
+		<div class="bs-example">
+			<form>
+				<div class="form-group" align="center">
+					<label>Click buttons to swap content</label>
+				</div>
+				<button type="button" id="slrbutton" class="btn btn-primary btn-lg btn-block"  data-toggle="button" aria-pressed="true"> Sea Level Rise</button>
+				<button type="button" id="ssbutton" class="btn btn-default btn-lg btn-block" data-toggle="button" aria-pressed="false"> Storm Surge </button>
+			</form>
+			<br>
+			<div class="panel-group" id="accordion">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" id="collapseOneHeader"><span class="glyphicon glyphicon-plus"></span> Sea Level Rise</a>
+						</h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse in">
+						<div class="panel-body" id="collapseOneText">
+							<p>This website shows a dynamic map of areas in the Greater Wellington region that will be affected by sea level rise. <br><br>Sea level is known to be rising in the Wellington Region as elsewhere in the world. Currently sea level is rising at about 3mm per year in the region. <br><br>
+							However sea levels rise is expected to accelerate in the near future due to climate change. Predictions vary but <a href="https://www.climate.gov/news-features/understanding-climate/climate-change-global-sea-level" target="_blank">more information is listed here.</a>  </p>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" id="collapseTwoHeader"><span class="glyphicon glyphicon-plus"></span> How to use</a>
+						</h4>
+					</div>
+					<div id="collapseTwo" class="panel-collapse collapse">
+						<div class="panel-body" id="collapseTwoText">
+							<p>Use the slider bar at the side to match your chosen water level.<br>
+					   Explore the susceptibility of inundation by moving the slider up and down.<br><br>
+					   All levels are relative to Mean High Water Springs 10 (MHWS10) <br>
+					   MHWS10 is the mean high water spring tide exceeded 10 percent of the time. <br>
+					   It is often used as a practical high tide level for infrastructure design works, and also for estimating extreme high storm tides.<br>
+					   <a href="https://www.linz.govt.nz/sea/tides/introduction-tides/definitions-tidal-terms" target="_blank">Learn more about tide levels.</a></p>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"><span class="glyphicon glyphicon-plus"></span> Data sources</a>
+						</h4>
+					</div>
+					<div id="collapseThree" class="panel-collapse collapse">
+						<div class="panel-body" id="collapseThreeText">
+							<p>Areas of inundation due to sea level rise were modelled in 2017 based off a <a href="https://data.linz.govt.nz/layer/53621-wellington-lidar-1m-dem-2013/" target="_blank"> detailed digital elevation model (DEM)</a> of the Wellington Region.<br><br>
+							Tide level offsets are based on values in a <a href="http://www.pce.parliament.nz/media/1384/national-and-regional-risk-exposure-in-low-lying-coastal-areas-niwa-2015.pdf" target="_blank">report produced by NIWA for the Parliamentary Commissioner for the Environment in 2016.</a><br><br>
+							Elevation data was based off LIDAR survey data produced for the WAGGIS consortium in 2013.<a href="http://mapping.gw.govt.nz/News06.htm" target="_blank">Learn more.</a></p>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	<div class="col-sm-2" style="background-color:#fff;height:800px">
+		<div class="wl-legend-content">					
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-1" id="leftInputCol">
+						<input id="ex14" data-slider-id='wlSlider' type="text" data-slider-ticks-snap-bounds="20" 
+						data-slider-orientation="vertical"/>
+					</div>
+					<div class="col-sm-1" id="rightImageCol">
+						<span id="slrLegendImage">
+							<img src="img/gradient_slr_20190222_clip_top03.png" alt="SLR spectrum image" style="width:150%;height:760px" class="img-responsive transparent">
+							<span class="slr-img-overlay-text1">Extreme value<br>2100</span>
+							<span class="slr-img-overlay-text2">Max likely value<br>2100</span>
+							<span class="slr-img-overlay-text3">Min likely value<br>2100</span>
+						</span>
+					</div>
+				</div>
+		    </div>
+		</div>
+	</div>
+	<div class="col-sm-8" style="background-color:#fff;">
+		<div id="map"></div>
+	</div>
+  </div>
+  <br>
+</div>
+
+<div id="slr-details" class="container-fluid" style="background-color:#e5f7f7;">
+	<h3>Sea Level Rise Modelling</h3>
+    <div class="col-md-6">	
+        <div class="home-content">
+			<h4 id="ccVarDetailTitle">Sea Level Rise predictions</h4>
+			<div id="ccVarDetailInfo">Global average sea level has risen by about 16–21 cm since 1900,with almost half this rise occurring since 1993 as oceans have warmed and land-based ice has melted.<br>Relative to the year 2000, sea level is very likely to rise 0.3 to 1.3 m by the end of the century. <br>Emerging science regarding Antarctic ice sheet stability suggests that, for higher scenarios, a rise exceeding 2.4 m by 2100 is physically possible, although the probability of such an extreme outcome cannot currently be assessed. <br><A HREF="https://nca2018.globalchange.gov/downloads/NCA4_Report-in-Brief.pdf#page=72" target="_blank">(U.S. Global Change Research Program Fourth National Climate Assessment, 2018)</a>
+			  <figure>
+				  <p><img src="img/750px-Sea_Level_Rise_Wikipedia.png" style="width:375px;height:300px" class="figure-img img-fluid">
+				  <figcaption>Historical sea level reconstruction and projections up to 2100 published in January 2017 <br>by the U.S. Global Change Research Program for the Fourth National Climate Assessment.</figcaption>
+			  </figure>
+			  <br>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="home-content">
+			<h4>Other sources of information</h4>
+			<ul>
+				<li><a href="https://oceanservice.noaa.gov/facts/sealevel.html" target="_blank">Is Sea Level Rising? (NOAA)</a></li>
+				<li><a href="https://interactives.stuff.co.nz/2018/11/beach-road/" target="_blank">Beach Road - the rising sea and the reshaping of New Zealand</a></li>
+				<li><a href="https://www.niwa.co.nz/natural-hazards/hazards/sea-levels-and-sea-level-rise#c5" target="_blank">NIWA - Sea Level Rise</a></li>
+				<li><a href="https://www.niwa.co.nz/natural-hazards/hazards/coastal-storm-inundation" target="_blank">NIWA - Coastal Storm Inundation</a></li>
+				<li><a href="https://www.mfe.govt.nz/sites/default/files/media/MFE_Coastal_Fact%20Sheet%207.pdf" target="_blank">MfE - Coastal Fact Sheet</a></li>
+				<li><a href="http://www.pce.parliament.nz/media/1384/national-and-regional-risk-exposure-in-low-lying-coastal-areas-niwa-2015.pdf" target="_blank">PCE/NIWA - Risk exposure in low lying coastal areas (2015)</a></li>
+				<li><a href="https://wellington.govt.nz/~/media/services/environment-and-waste/environment/files/61579-wcc-sea-level-rise-options.pdf" target="_blank">WCC - Sea Level Rise Options Analysis</a></li>
+				<li><a href="http://www.gw.govt.nz/assets/Climate-change/Sea-Level-Variability-and-Trends-in-the-Wellington-Region2012.pdf" target="_blank">Sea Level Variability and Trends in the Wellington Region (2012)</a></li>
+				<li><a href="https://www.newsroom.co.nz/2018/11/20/329590/125000-buildings-worth-38bn-at-risk-from-first-1m-sea-level-rise-draft-report" target="_blank">Newsroom - building values at risk with 1m sea level rise</a></li>
+				<li><a href="https://www.scientificamerican.com/article/prepare-for-10-feet-of-sea-level-rise-california-commission-tells-coastal-cities/" target="_blank">Scientific American - California Commission report on sea level rise</a></li>
+				<li><a href="https://wmo.maps.arcgis.com/apps/Cascade/index.html?appid=855267a7dd394825aa8e9025e024f163" target="_blank">WMO - State of the Global Climate in 2018</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div id="how-to-use" class="container-fluid" style="background-color:#fff;">
+	<h3>How to use this page</h3>
+    <div class="col-md-6">	
+        <div class="home-content">
+			<h4>Change map content</h4>
+			<ul>
+				<li>Click on the map window and drag to change the map view.</li>
+				<li>Use zoom tools or shift-click and drag to change the map extent</li>
+				<li>Use the slider bar to change the modelled inundation level (sea level rise), or click a radio button to change the sea level model used for storm surge.</li>
+				<li>Click on an inundation area (coloured map overlay) to view water depth details</li>
+			</ul>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="home-content">
+			<h4>Other tools</h4>
+			<ul>
+				<li>Click on the map to view the calculated values at any location <img src="img/SLR_popup.png" style="width:170px;height:45px";></li>
+				<li>Click on the search tool and enter a name to find any placename in the region <img src="img/SearchTool.jpg" style="width:43px;height:40px";></li>
+				<li>Click on the layer control tool and choose an option to change the basemap type or overlays <img src="img/LayerControl.jpg" style="width:43px;height:40px";></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div id="background-to-topic" class="container-fluid" style="background-color:#e5f7f7;">
+	<h3>Background to this page</h3>
+    <div class="col-md-6">	
+        <div class="home-content">
+			<h4>Background</h4>
+			<p>This webpage displays a dynamic map which shows the calculated inundation areas at a range of sea level rise values in the Wellington Region. Alternative map overlays show modelled storm surge flooding at different sea level rise values, for a 1% AEP (100 year) event. Inundation areas were modelled in 2017 based off a detailed digital elevation model (DEM) of the Wellington Region. Tide level offsets are based on values in a report produced by NIWA for the Parliamentary Commissioner for the Environment in 2016.</p>
+			<h4>Elevation values</h4>
+			<p>The basis for this mapping is a detailed digital elevation model (DEM) of the Wellington Region. This was based off a laser airborne (LIDAR) survey commissioned by the WAGGIS consortium in 2013. The survey data was subsequently reprocessed in 2017 by Landcare Research with funding from LINZ. The DEM was then recalculated to match the MHWS10 datum based off tidal values provided in a NIWA report. Colour overlays on the map show elevations at 20cm intervals above MHWS10.  </p>
+			<h4>Report and Data</h4>
+			<p>This website follows on from a <a href="http://www.pce.parliament.nz/media/1384/national-and-regional-risk-exposure-in-low-lying-coastal-areas-niwa-2015.pdf" target="_blank">report produced by NIWA for the Parliamentary Commissioner for the Environment (PCE) in 2016.</a> Data produced as an outcome of that report can be downloaded from the <a href="http://data-gwrc.opendata.arcgis.com/datasets/coastal-land-elevation-for-the-wellington-region-nz" target="_blank">GWRC Open Data Site.</a></p>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="home-content">
+			<h4>Please note</h4>
+			<p>Please note these results are based on modelled data, and as such they are indicative only of likely changes, depending on future greenhouse gases emissions.<br> </p>
+			<h4>Scenario choice</h4>
+			<p>It’s impossible to know which sea level rise estimate will be closer to reality by the end of the century, and therefore it is recommended that people’s planning incorporates a range of outcomes.</p>
+		</div>
+	</div>
+</div>
+
+<button onclick="topFunction()" id="myBtn" title="Go to top">Return to Top</button>
+
+<!-- Modal -->
+<div class="modal fade" id="introModal" role="dialog">
+	<div class="modal-dialog modal-lg">
+	
+	  <!-- Modal content-->
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <button type="button" class="close" data-dismiss="modal">&times;</button>
+		  <h4 class="modal-title">Sea Level Rise Modelling for the Wellington Region</h4>
+		</div>
+		<div class="modal-body">
+		  <p><b>This website helps tell the story of what sea level rise might look like above the high tide mark around the Wellington Region. Use this tool to identify what areas will get wet first and see what an extreme sea rise will do to our region.</b> </p>
+		  <br>
+		  <p><b>Scientific research is driven by questions. While there are still ‘uncertainties’ about some aspects of climate change, the basic questions are well understood and we know the sea level is rising.</b></p>
+		  <br>
+		  <p><b>It is certain that the sea is rising and will continue to do so for centuries to come. But much is uncertain – how rapidly it will rise, how different coastal areas will be affected, and how we should
+			prepare. And we do need to prepare. After all, as an article in the New York Times put it in 2015: <i>“Human civilization is built on the premise that the level of the sea is stable, as indeed it has been for several thousand years”</i></b></p>
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		</div>
+	  </div>
+	  
+	</div>
+</div>
+
+<script src="https://unpkg.com/ionicons@4.2.2/dist/ionicons.js"></script>
+
+<script>  
+
+$(document).ready(function () {
+
+	var toggleState = 'SLR';
+
+	// Globals for layer specs
+	var slrLayerId = 5;	 // 0 to 100cm above MHWS10
+	
+	var ssLayerId = 2;   // Layer Id 2 = 100cm SLR, 1% AEP
+		
+	var map = L.map('map').setView([-41.266,174.85], 13); 
+	
+	var slrSliderObj;
+	
+	var slrLegendImageObj;
+	
+	var ssButtonsObj = null;
+	
+	var ssLegendImageObj = null;
+	
+	var radioHTML, ssImageHTML;
+  
+	// Basemaps
+	var osm = new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{ 
+				attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'});
+	//var topoBaseMap = L.esri.basemapLayer('Topographic').addTo(map);
+	//var streetBaseMap = L.esri.basemapLayer('Streets', {attribution: 'Map data &copy; <a href="https://www.esri.com/">ESRI</a> and contributors'}).addTo(map);
+	var streetBaseMap = L.esri.basemapLayer('Streets').addTo(map);
+	//var ngBaseMap = L.esri.basemapLayer('NationalGeographic');
+	//var oceansBaseMap = L.esri.basemapLayer('Oceans');
+	//var grayBaseMap = L.esri.basemapLayer('Gray');
+	//var darkgrayBaseMap = L.esri.basemapLayer('DarkGray');
+	var imageryBaseMap = L.esri.basemapLayer('Imagery');
+	var reliefBaseMap = L.esri.basemapLayer('ShadedRelief');
+	
+	// Initial setting at layer 5 = 100cm above NZVD2016
+	var slrLayer = L.esri.dynamicMapLayer({
+		url: 'https://mapping1.gw.govt.nz/arcgis/rest/services/Hazards/Sea_Level_Rise/MapServer',
+		opacity: 0.7,
+		layers: [slrLayerId]
+		}).addTo(map);
+		
+	// Define Storm Surge layer
+	var ssLayer = L.esri.dynamicMapLayer({
+			url: 'https://mapping1.gw.govt.nz/arcgis/rest/services/Hazards/Storm_Surge/MapServer',
+			opacity: 0.7,
+			layers: [ssLayerId]
+		});
+	
+	slrLayer.bindPopup(function (error, featureCollection) {
+		// Handle user click for popup
+		if (error || featureCollection.features.length === 0) {
+		  return false;
+		} else {
+		  var pixVal = featureCollection.features[0].properties['Pixel Value']; // Color Index, range value 2 to 50 (ground elevation in decimetres above MHWS10)
+		  var SLR_sliderVal = 100;												// Set at initial value as slider not yet bound - SLR value in cm
+		  var SLR_val = Math.floor((SLR_sliderVal/20)*20)                       // SLR value selected by user on slider, in cm
+		  if (pixVal >= 2 && pixVal <= 50) {
+			  // Color index values for inundated areas
+			  var grdElev = (pixVal * 10)/ 100.0									// Ground elevation above datum in m (MHWS10)
+			  var waterDepth = (SLR_val/100.0) - grdElev 							// Water Depth at point in m
+			  var grdElev = parseFloat(Math.round(grdElev * 100) / 100).toFixed(2); 		// 2 d.p. for output e.g. 1.22
+			  var waterDepth = parseFloat(Math.round(waterDepth * 100) / 100).toFixed(2); 	// 2 d.p. for output e.g. 1.22
+			  //console.log('Pixel value is : ' + pixVal.toString() + ', SLR value is : ' + SLR_val.toString());
+			  return 'Ground elevation is ' + grdElev.toString() + ' m above MHWS10 datum <br>' + 'Water depth due to modelled sea level rise is ' + waterDepth.toString() + ' m';
+		  }
+		  else if (pixVal == 99) {
+			  // Code 99 a special case (coloured green in map layers)
+			  return 'Area unconnected to sea but below sea level <br>at ' + (SLR_val/100.0).toString() + ' m sea level rise';
+		  } 
+		  else
+		  {
+			  // Other value, probably "NoData"
+			  return 'Area outside of possible inundation caused by sea level rise (for current slider value)';
+		  }
+		}
+	});
+	
+	var searchBounds = L.latLngBounds([-41.6,174.50],[-40.6,176.40]);
+	
+	// Limit search to current extent
+	var searchControl = L.esri.Geocoding.geosearch({
+		useMapBounds: false,
+		placeholder: 'Search for an address',
+		title: 'Address Search',
+		searchBounds: searchBounds
+	}).addTo(map);
+
+	//var geocoderesults = L.layerGroup().addTo(map);
+
+	searchControl.on('results', function(data){
+		//geocoderesults.clearLayers();
+		// set map view
+		if (data.results.length > 0) {
+			map.setView(data.results[0].latlng, 16);
+			//geocoderesults.addLayer(L.marker(data.results[0].latlng));
+			// open pop-up for location
+            var locPopup = L.popup({closeOnClick: true}).setLatLng(data.results[0].latlng).setContent(data.results[0].text).openOn(map); 
+		}
+	});	
+	
+	// Zoom to home extent
+	
+	//<ion-icon src="/img/_ionicons_svg_md-home.svg"></ion-icon>
+	L.easyButton('<ion-icon name="home"></ion-icon>', function(btn, map){
+			map.setView([-41.266,174.85], 13); 
+		}, 'Home View').addTo( map );	
+	
+    // Add minus icon for collapse element which is open by default
+	$(".collapse.in").each(function(){
+		$(this).siblings(".panel-heading").find(".glyphicon").addClass("glyphicon-minus").removeClass("glyphicon-plus");
+	});
+	
+	// Toggle plus minus icon on show hide of collapse element
+	$(".collapse").on('show.bs.collapse', function(){
+		$(this).parent().find(".glyphicon").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+	}).on('hide.bs.collapse', function(){
+		$(this).parent().find(".glyphicon").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+	});
+	
+	// Switcher control for basemap layers.
+	var baseMaps = {
+		"Open Street Map" : osm,
+		"Aerial imagery" : imageryBaseMap,
+		"Street Map" : streetBaseMap
+	};
+	
+	var layerControl = L.control.layers(baseMaps).addTo(map);
+    map.addControl(layerControl);
+	
+	// When the user scrolls down 800px from the top of the document, show the button
+	window.onscroll = function() {scrollFunction()};
+
+	function scrollFunction() {
+    if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+        document.getElementById("myBtn").style.display = "block";
+    } else {
+        document.getElementById("myBtn").style.display = "none";
+    }
+	}
+	
+	// Without JQuery
+	var slider14 = new Slider("#ex14", {
+		// precision: 2,
+		reversed : true,
+		ticks: [0, 100, 200, 300, 400, 500],
+		ticks_positions: [0, 20, 40, 60, 80, 100],
+		ticks_labels: ['5m', '4m', '3m', '2m', '1m', '0m'],
+		ticks_snap_bounds: 10,
+		step: 20,
+		value: 100,
+		formatter: function(value) {
+			return 'Sea Level Rise : ' + (value/100.0) + " m";
+		}
+	});
+	
+	$(document).ready(function(){
+		$("#wlSlider .slider-handle").text($("input#wlSlider").val());
+	});
+
+	$("#wlSlider").on("slide", function(slideEvt) {
+		$("#wlSlider .slider-handle").text(slideEvt.value/100.0);
+	});
+	
+	$("#wlSlider").on('slideStop', function (slideEvt) {
+		
+		slrLayerId = Math.floor(((slideEvt.value/100.0))/0.2);  
+		
+		$("#wlSlider .slider-handle").text(slideEvt.value/100.0);
+		
+		if (slrLayer) {
+		  map.removeLayer(slrLayer);
+		}
+		
+		// Add SLR data layer to map - Don't show layer 0 for 0m (group layer id)
+		if (slrLayerId != 0) {
+		
+			slrLayer = L.esri.dynamicMapLayer({
+				url: 'https://mapping1.gw.govt.nz/arcgis/rest/services/Hazards/Sea_Level_Rise/MapServer',
+				opacity: 0.7,
+				layers: [slrLayerId]
+			}).addTo(map);
+		
+			slrLayer.bindPopup(function (error, featureCollection) {
+				// Handle user click for popup
+				if (error || featureCollection.features.length === 0) {
+				  return false;
+				} else {
+				  var pixVal = featureCollection.features[0].properties['Pixel Value']; // Color Index, range value 0 to 99
+				  var SLR_val = Math.floor((slideEvt.value/20)*20)                      // SLR value selected by user on slider, in cm
+				  if (pixVal >= 2 && pixVal <= 50) {
+					  // Color index values for inundated areas
+					  var grdElev = (pixVal * 10)/ 100.0									// Ground elevation above datum in m (MHWS10)
+					  var waterDepth = (SLR_val/100.0) - grdElev 							// Water Depth at point in m
+					  var grdElev = parseFloat(Math.round(grdElev * 100) / 100).toFixed(2); 		// 2 d.p. for output e.g. 1.22
+					  var waterDepth = parseFloat(Math.round(waterDepth * 100) / 100).toFixed(2); 	// 2 d.p. for output e.g. 1.22
+					  // console.log('Pixel value is : ' + pixVal.toString() + ', SLR value is : ' + SLR_val.toString());
+					  return 'Ground elevation is ' + grdElev.toString() + ' m above MHWS10 datum <br>' + 'Water depth due to modelled sea level rise is ' + waterDepth.toString() + ' m';
+				  }
+				  else
+				  {
+					  // Other value, probably "NoData"
+					  return 'Area outside of possible inundation caused by sea level rise (for current slider value)';
+				  }
+				}
+			});
+		}
+	});
+	
+	$('#slrbutton').on('click', function (e) {
+	
+		// Handle user click on SLR button
+		// n.b. if same button clicked twice, take no action the 2nd time 
+		
+		if (toggleState == 'SS')
+		
+		{
+			toggleState = 'SLR';
+		
+			// Toggle button appearance
+			document.getElementById("slrbutton").className = "btn btn-primary btn-lg btn-block";	// Set background-color: #174A5B;
+			document.getElementById("ssbutton").className = "btn btn-default btn-lg btn-block";
+			
+			if (map.hasLayer(slrLayer)) {
+			  map.removeLayer(slrLayer);
+			}
+			
+			if (map.hasLayer(ssLayer)) {
+			  map.removeLayer(ssLayer);
+			}
+			
+			// Detach and save #leftInputCol's content including handlers
+			ssButtonsObj = $("#ssRadioButtonsCol").detach();
+			// Detach and save #rightInputCol's content including handlers
+			ssLegendImageObj = $("#ssLegendImage").detach();
+			
+			slrSliderObj.appendTo("#leftInputCol");  // Reattach object holding SLR slider & handlers
+			slrLegendImageObj.appendTo("#rightImageCol");  // Reattach object holding SLR legend image
+			
+			document.getElementById('collapseOneHeader').innerHTML = '<span class="glyphicon glyphicon-plus"></span> Sea Level Rise'; 
+			
+			var ssCollapseOneText = '<p>This website shows a dynamic map of areas in the Greater Wellington region that will be affected by sea level rise. <br><br>Sea level is known to be rising in the Wellington Region as elsewhere in the world. Currently sea level is rising at about 3mm per year in the region. <br><br>';
+			ssCollapseOneText = ssCollapseOneText + 'However sea levels rise is expected to accelerate in the near future due to climate change. Predictions vary but <a href="https://www.climate.gov/news-features/understanding-climate/climate-change-global-sea-level" target="_blank">more information is listed here.</a>  </p>';
+			document.getElementById('collapseOneText').innerHTML = ssCollapseOneText; 
+			
+			var ssCollapseTwoText = '<p>Use the slider bar at the side to match your chosen water level.<br>';
+			ssCollapseTwoText = ssCollapseTwoText + 'Explore the susceptibility of inundation by moving the slider up and down.<br><br>';
+			ssCollapseTwoText = ssCollapseTwoText + 'All levels are relative to Mean High Water Springs 10 (MHWS10) <br>';
+			ssCollapseTwoText = ssCollapseTwoText + 'MHWS10 is the mean high water spring tide exceeded 10 percent of the time. <br>';
+			ssCollapseTwoText = ssCollapseTwoText + 'It is often used as a practical high tide level for infrastructure design works, and also for estimating extreme high storm tides.<br>';
+			ssCollapseTwoText = ssCollapseTwoText + '<a href="https://www.linz.govt.nz/sea/tides/introduction-tides/definitions-tidal-terms" target="_blank">Learn more about tide levels.</a></p>';
+			document.getElementById('collapseTwoText').innerHTML = ssCollapseTwoText; 
+				
+			var ssCollapseThreeText = '<p>Areas of inundation due to sea level rise were modelled in 2017 based off a <a href="https://data.linz.govt.nz/layer/53621-wellington-lidar-1m-dem-2013/" target="_blank"> detailed digital elevation model (DEM)</a> of the Wellington Region.<br><br>';
+			ssCollapseThreeText = ssCollapseThreeText + 'Tide level offsets are based on values in a <a href="http://www.pce.parliament.nz/media/1384/national-and-regional-risk-exposure-in-low-lying-coastal-areas-niwa-2015.pdf" target="_blank">report produced by NIWA for the Parliamentary Commissioner for the Environment in 2016.</a><br><br>';
+			ssCollapseThreeText = ssCollapseThreeText + 'Elevation data was based off LIDAR survey data produced for the WAGGIS consortium in 2013.<a href="http://mapping.gw.govt.nz/News06.htm" target="_blank">Learn more.</a></p>';
+			document.getElementById('collapseThreeText').innerHTML = ssCollapseThreeText; 
+			
+			// Add SLR data layer to map - Don't show layer 0 for 0m (group layer id)
+			if (slrLayerId != 0) {
+			
+				// Add SLR data layer
+				slrLayer = L.esri.dynamicMapLayer({
+					url: 'https://mapping1.gw.govt.nz/arcgis/rest/services/Hazards/Sea_Level_Rise/MapServer',
+					opacity: 0.7,
+					layers: [slrLayerId]
+				}).addTo(map);
+				
+				slrLayer.bindPopup(function (error, featureCollection) {
+					// Handle user click for popup
+					if (error || featureCollection.features.length === 0) {
+					  return false;
+					} else {
+					  var pixVal = featureCollection.features[0].properties['Pixel Value']; // Color Index, range value 0 to 99
+					  //var SLR_val = Math.floor((slideEvt.value/20)*20);                      // SLR value selected by user on slider, in cm
+					  var SLR_val = slrLayerId * 20.0;
+					  if (pixVal >= 2 && pixVal <= 50) {
+						  // Color index values for inundated areas
+						  var grdElev = (pixVal * 10)/ 100.0									// Ground elevation above datum in m (MHWS10)
+						  var waterDepth = (SLR_val/100.0) - grdElev 							// Water Depth at point in m
+						  var grdElev = parseFloat(Math.round(grdElev * 100) / 100).toFixed(2); 		// 2 d.p. for output e.g. 1.22
+						  var waterDepth = parseFloat(Math.round(waterDepth * 100) / 100).toFixed(2); 	// 2 d.p. for output e.g. 1.22
+						  //console.log('Pixel value is : ' + pixVal.toString() + ', SLR value is : ' + SLR_val.toString());
+						  return 'Ground elevation is ' + grdElev.toString() + ' m above MHWS10 datum <br>' + 'Water depth due to modelled sea level rise is ' + waterDepth.toString() + ' m';
+					  }
+					  else if (pixVal == 99) {
+						  // Code 99 a special case (coloured green in map layers)
+						  return 'Area unconnected to sea but below sea level <br>at ' + (SLR_val/100.0).toString() + ' m sea level rise';
+					  } 
+					  else
+					  {
+						  // Other value, probably "NoData"
+						  return 'Area outside of possible inundation caused by sea level rise (for current slider value)';
+					  }
+					}
+				});
+			}
+		}
+	})
+	
+	$('#ssbutton').on('click', function (e) {
+		// Handle user click on SS button
+		// window.alert("You want SS");
+		
+		if (toggleState == 'SLR')
+		
+		{
+			toggleState = 'SS';
+			
+			// Toggle button appearance
+			document.getElementById("ssbutton").className = "btn btn-primary btn-lg btn-block";
+			document.getElementById("slrbutton").className = "btn btn-default btn-lg btn-block";
+			
+			if (map.hasLayer(slrLayer)) {
+			  map.removeLayer(slrLayer);
+			}
+			
+			if (map.hasLayer(ssLayer)) {
+			  map.removeLayer(ssLayer);
+			}
+			
+			// Detach #leftInputCol's content including handlers
+			slrSliderObj = $("#wlSlider").detach();
+			slrLegendImageObj = $("#slrLegendImage").detach();
+			
+			// *** Note if SS objects exist & are not null, just reattach them here instead of building HTML from scratch
+			// i.e user has toggled from SLR view to SS view & back again, then back to SS view
+			// This ensures that radio button settings are retained between view toggling
+			if (ssButtonsObj !== null) {
+				ssButtonsObj.appendTo("#leftInputCol");  // Reattach object holding SLR slider & handlers
+			} else {
+				// Build HTML content for SS buttons to go in LH column in place of SLR slider
+				radioHTML = '<div id="ssRadioButtonsCol" class="ss-vertical-radio-form-offset">';
+				radioHTML = radioHTML + '<div id="ssRadioButtons" class="ss-vertical-radio-form"><form id="radioform">'
+				radioHTML = radioHTML + '<span class="ss-vertical-radio-buttons-top">SLR value<br /><br /></span>'
+				radioHTML = radioHTML + '<span class="ss-vertical-radio-buttons250"> 1.5m <input type="radio" name="radioName" value="1" /><br /></span>'
+				radioHTML = radioHTML + '<span class="ss-vertical-radio-buttons100"> 1.0m <input type="radio" name="radioName" value="2" checked /><br /></span>'
+				radioHTML = radioHTML + '<span class="ss-vertical-radio-buttons100"> 0.5m <input type="radio" name="radioName" value="3" /><br /></span>'
+				radioHTML = radioHTML + '<span class="ss-vertical-radio-buttons100"> 0.0m <input type="radio" name="radioName" value="4" /><br /></span></form></div></div>'
+				$("#leftInputCol").html(radioHTML);
+			}
+			
+			if (ssLegendImageObj !== null) {	
+				ssLegendImageObj.appendTo("#rightImageCol");  // Reattach object holding SS legend image
+			} else {
+				ssImageHTML = '<img src="img/gradient_ss_20190326_clip_top02.png" id="ssLegendImage" alt="SS spectrum image" style="width:70px;height:760px" class="transparent">';
+				$("#rightImageCol").html(ssImageHTML);
+			}
+
+			// SS data layers
+			ssLayer = L.esri.dynamicMapLayer({
+				url: 'https://mapping1.gw.govt.nz/arcgis/rest/services/Hazards/Storm_Surge/MapServer',
+				opacity: 0.7,
+				layers: [ssLayerId]
+			}).addTo(map);
+			
+			document.getElementById('collapseOneHeader').innerHTML = '<span class="glyphicon glyphicon-plus"></span> Storm Surge'; 
+			
+			var ssCollapseOneText = '<p class="ss-main-text"><b>Storm surge</b> is the lift in coastal water level that occurs during a storm, measured relative to the predicted tide height. <br><br>';
+			ssCollapseOneText = ssCollapseOneText + 'The surge is caused primarily by strong winds pushing water onshore and low air pressure causing a lift in the water level. <br><br>';
+			ssCollapseOneText = ssCollapseOneText + 'When this occurs together with large waves it can cause severe local flooding and erosion, particularly over high tide.<br><br>';
+			ssCollapseOneText = ssCollapseOneText + 'The size of the storm surge at a given location depends on the orientation of the shoreline to the storm; the intensity, size, and speed of the storm; and the contour of the local seabed.<br><br>';
+			ssCollapseOneText = ssCollapseOneText + '<a href="https://oceanservice.noaa.gov/facts/stormsurge-stormtide.html" target="_blank">Learn more about storm surge.</a></p>';
+			document.getElementById('collapseOneText').innerHTML = ssCollapseOneText; 
+			
+			var ssCollapseTwoText = '<p>Use the radio buttons at the side to match your chosen water level.<br><br>';
+			ssCollapseTwoText = ssCollapseTwoText + '3 sea-level rise options as well as present-day water levels are shown.<br><br>';
+			ssCollapseTwoText = ssCollapseTwoText + '<i>Model data is shown for areas covering Wellington and Porirua Harbours and the Kapiti Coast only.</i><br><br>';
+			ssCollapseTwoText = ssCollapseTwoText + '<a href="https://www.linz.govt.nz/sea/tides/introduction-tides/definitions-tidal-terms" target="_blank">Learn more about tide levels.</a></p>';
+			document.getElementById('collapseTwoText').innerHTML = ssCollapseTwoText; 
+			
+			var ssCollapseThreeText = '<p><a href="http://www.gw.govt.nz/assets/Climate-change/Storm-surge-hazards-in-the-Wellington-regionNIWAGWRC2013.pdf" target="_blank">The work was undertaken by NIWA</a> for Greater Wellington Regional Council, Kapiti Coast District Council and Wellington City Council.<p>';
+			ssCollapseThreeText = ssCollapseThreeText + 'The assessment is based on numerically modelling the combined effects of storm tides and waves for selected storm events with a joint annual exceedance probability (AEP) of 1% ';
+			ssCollapseThreeText = ssCollapseThreeText + '(ie, 100 yr storm) and was undertaken relative to present day sea levels (2102), and for three sea level rise increments of 0.5 m, 1.0 m, and 1.5 m ';
+			document.getElementById('collapseThreeText').innerHTML = ssCollapseThreeText; 
+			
+			ssLayer.bindPopup(function (error, featureCollection) {
+				// Handle user click for popup
+				if (error || featureCollection.features.length === 0) {
+				  return false;
+				} else {
+				  var pixVal = featureCollection.features[0].properties['Pixel Value']; // Value, range value 0 to 5.0  (water depth, m)
+				  var ss_val = Math.floor(200 - (ssLayerId * 50));                      // SLR value selected by user on radio buttons, in cm
+				  if (ss_val === 0) 			// Convert ss_val to m
+				  {
+					ss_val = 0.0;
+				  } 
+				  else 
+				  {
+					ss_val = parseFloat((ss_val/100.0).toFixed(2));
+				  }
+				  if (pixVal >= 0 && pixVal <= 5.0) {
+					  // Color index values for inundated areas
+					  var waterDepth = pixVal; 							// Water Depth at point in m
+					  waterDepth = parseFloat(Math.round(waterDepth * 100) / 100).toFixed(2); 	// 2 d.p. for output e.g. 1.22
+					  //console.log('Pixel value is : ' + pixVal.toString() + ', SLR value is : ' + ss_val.toString());
+					  return 'For sea level rise of ' + ss_val.toString() + ' m in a 1% AEP storm,<br>' + 'Water depth due to modelled storm surge is ' + waterDepth.toString() + ' m';
+				  }
+				  else if (pixVal == 99) {
+					  // Code 99 a special case (coloured green in map layers)
+					  return 'Area unconnected to sea but below sea level <br>at ' + (ss_val/100.0).toString() + ' m sea level rise';
+				  } 
+				  else
+				  {
+					  // Other value, probably "NoData"
+					  return 'Area outside of inundation caused by storm surge (for chosen sea level rise model)';
+				  }
+				}
+			});
+			
+			// https://stackoverflow.com/questions/596351/how-can-i-know-which-radio-button-is-selected-via-jquery?rq=1
+			$('#radioform input').on('change', function() {
+				ssLayerId = $('input[name=radioName]:checked', '#radioform').val();
+				//alert($('input[name=radioName]:checked', '#radioform').val()); 
+				//alert('Layer Id is : ' + ssLayerId.toString()); 
+				
+				if (map.hasLayer(ssLayer)) {
+					map.removeLayer(ssLayer);
+				}
+				
+				// SS data layers
+				ssLayer = L.esri.dynamicMapLayer({
+					url: 'https://mapping1.gw.govt.nz/arcgis/rest/services/Hazards/Storm_Surge/MapServer',
+					opacity: 0.7,
+					layers: [ssLayerId]
+				}).addTo(map);
+				
+				ssLayer.bindPopup(function (error, featureCollection) {
+					// Handle user click for popup
+					if (error || featureCollection.features.length === 0) {
+					  return false;
+					} else {
+					  var pixVal = featureCollection.features[0].properties['Pixel Value']; // Value, range value 0 to 5.0  (water depth, m)
+					  var ss_val = Math.floor(200 - (ssLayerId * 50));                      // SLR value selected by user on radio buttons, in cm
+					  if (ss_val === 0) 			// Convert ss_val to m
+					  {
+						ss_val = 0.0;
+					  } 
+					  else 
+					  {
+						ss_val = parseFloat((ss_val/100.0).toFixed(2));
+					  }
+					  if (pixVal >= 0 && pixVal <= 5.0) {
+						  // Color index values for inundated areas
+						  var waterDepth = pixVal; 							// Water Depth at point in m
+						  waterDepth = parseFloat(Math.round(waterDepth * 100) / 100).toFixed(2); 	// 2 d.p. for output e.g. 1.22
+						  //console.log('Pixel value is : ' + pixVal.toString() + ', SLR value is : ' + ss_val.toString());
+						  return 'For sea level rise of ' + ss_val.toString() + ' m in a 1% AEP storm,<br>' + 'Water depth due to modelled storm surge is ' + waterDepth.toString() + ' m';
+					  }
+					  else if (pixVal == 99) {
+						  // Code 99 a special case (coloured green in map layers)
+						  return 'Area unconnected to sea but below sea level <br>at ' + (ss_val/100.0).toString() + ' m sea level rise';
+					  } 
+					  else
+					  {
+						  // Other value, probably "NoData"
+						  return 'Area outside of inundation caused by storm surge (for chosen sea level rise model)';
+					  }
+					}
+				});
+				
+			});
+		
+		}
+	})
+
+	// Open the initial modal form
+	$("#introModal").modal();
+});
+
+</script>
+
+</body>
+</html> 
